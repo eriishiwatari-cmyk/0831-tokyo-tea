@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026年度 従業員・職場代表 施策進捗ダッシュボード（東京支社）</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { colors: { brand: { 50:'#eef2ff',100:'#e0e7ff',500:'#6366f1',600:'#4f46e5',700:'#4338ca' } } } } }
+</script>
+<style>
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:#f1f5f9}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:9999px}
+  ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+  .fade-in{animation:fadeIn .25s ease-out}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  [data-view]{display:none}
+  [data-view].active{display:block}
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-500 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">2026年度 職場代表 施策進捗ボード</h1>
+            <span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded-full border border-indigo-200">東京支社</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">執務環境改善・コミュニケーション・職場ルール定着のコミットメント</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button onclick="openModal()" class="inline-flex items-center px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-medium rounded-lg shadow-sm transition-all shadow-indigo-200 gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          新規タスク追加
+        </button>
+        <div class="h-7 w-px bg-slate-200"></div>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-slate-100 text-indigo-700 flex items-center justify-center font-bold text-xs border border-indigo-100">代表</div>
+          <div class="hidden md:block text-left text-xs">
+            <div class="font-semibold text-slate-800">東京支社 職場代表団</div>
+            <div class="text-[10px] text-slate-400" id="save-status">2026年度 進行期</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 w-full space-y-6">
+
+  <!-- サマリー -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden flex flex-col justify-between">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">全施策 達成度</span>
+        <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">全<span id="stat-initiative-count"></span>施策</span>
+      </div>
+      <div>
+        <div class="flex items-baseline gap-2 mb-2">
+          <span class="text-3xl font-extrabold text-slate-900" id="stat-total-progress-text">0%</span>
+          <span class="text-xs text-slate-500">（進行中・前倒し対応含む）</span>
+        </div>
+        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+          <div id="stat-total-progress-bar" class="bg-gradient-to-r from-indigo-500 to-sky-500 h-full rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="text-[11px] text-slate-400 mt-3 pt-2 border-t border-slate-100 flex justify-between">
+        <span>対象: 2026年度 施策一覧</span><span>Q2進行中</span>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">施策区分内訳</span>
+      <div class="grid grid-cols-3 gap-2 text-center my-1">
+        <div class="bg-emerald-50 border border-emerald-100 p-2 rounded-xl"><div class="text-lg font-bold text-emerald-700" id="stat-phase-progress">0</div><div class="text-[11px] text-emerald-600 font-medium">進行中/先行</div></div>
+        <div class="bg-sky-50 border border-sky-100 p-2 rounded-xl"><div class="text-lg font-bold text-sky-700" id="stat-phase-midterm">0</div><div class="text-[11px] text-sky-600 font-medium">中長期検討</div></div>
+        <div class="bg-amber-50 border border-amber-100 p-2 rounded-xl"><div class="text-lg font-bold text-amber-700" id="stat-phase-hold">0</div><div class="text-[11px] text-amber-600 font-medium">導入見送り/調査</div></div>
+      </div>
+      <div class="text-[11px] text-slate-400 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+        <span>前倒し施策: テレキューブ目隠し</span><span class="text-indigo-600">順調</span>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">アクション消化数</span>
+      <div class="my-1">
+        <div class="flex items-baseline justify-between mb-1.5">
+          <span class="text-2xl font-bold text-slate-800"><span id="stat-done-count">0</span> <span class="text-sm font-normal text-slate-500">/ <span id="stat-total-count">0</span> 件完了</span></span>
+          <span class="text-xs font-semibold text-indigo-600" id="stat-done-pct">0%</span>
+        </div>
+        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+          <div id="stat-done-bar" class="bg-indigo-600 h-full rounded-full" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="text-[11px] text-slate-400 mt-2 pt-2 border-t border-slate-100 flex justify-between">
+        <span>直近期日: 9/24 中途入社準備</span><span class="text-amber-600 font-medium">準備中</span>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">直近の重点対応事項</span>
+      <div class="my-1 space-y-1">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>9/24 中途社員入社受入準備</div>
+        <p class="text-[11px] text-slate-500 leading-tight">座席・ロッカー確保、女性ロッカー収納・制服管理の整理</p>
+      </div>
+      <div class="text-[11px] text-slate-400 mt-2 pt-2 border-t border-slate-100 flex justify-between items-center">
+        <span>前倒し: テレキューブ目隠し施工</span><span class="text-emerald-600 font-semibold">進行中</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- コントロールバー -->
+  <section class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex items-center p-1 bg-slate-100 rounded-xl w-fit">
+      <button onclick="switchView('card')" id="tab-card" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-indigo-600 shadow-sm transition-all">施策カード (<span id="tab-card-count"></span>件)</button>
+      <button onclick="switchView('timeline')" id="tab-timeline" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-all">年間ロードマップ</button>
+      <button onclick="switchView('table')" id="tab-table" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-all">全タスク一覧</button>
+    </div>
+    <div class="flex flex-1 flex-wrap items-center gap-2 md:justify-end">
+      <input id="search-input" oninput="onSearch(this.value)" type="text" placeholder="施策・タスクを検索..." class="text-xs border border-slate-200 rounded-lg px-3 py-1.5 w-full sm:w-52 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+      <div class="flex gap-1.5 overflow-x-auto pb-1 md:pb-0" id="filter-buttons"></div>
+    </div>
+  </section>
+
+  <!-- カードビュー -->
+  <section id="view-card" data-view class="active grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></section>
+
+  <!-- タイムラインビュー -->
+  <section id="view-timeline" data-view class="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm space-y-6">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div>
+        <h3 class="text-base font-bold text-slate-900">2026年度 施策タイムライン・マイルストーン</h3>
+        <p class="text-xs text-slate-500">全9施策の四半期別推進スケジュール</p>
+      </div>
+      <div class="flex items-center gap-3 text-xs">
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-500"></span> 完了/前倒し</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-500"></span> 直近対応</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-indigo-500"></span> 進行・検討</span>
+      </div>
+    </div>
+    <div class="grid grid-cols-4 gap-4">
+      <div class="text-center font-bold text-xs pb-2 border-b-2 border-emerald-500 text-emerald-700">Q1 (4月〜6月) <span class="block text-[10px] font-normal text-slate-400">実績確定</span></div>
+      <div class="text-center font-bold text-xs pb-2 border-b-2 border-indigo-600 text-indigo-700 bg-indigo-50/30 rounded-t">Q2 (7月〜9月) <span class="block text-[10px] font-normal text-amber-600 font-semibold">現在進行中 (9/24入社)</span></div>
+      <div class="text-center font-bold text-xs pb-2 border-b-2 border-slate-300 text-slate-600">Q3 (10月〜12月) <span class="block text-[10px] font-normal text-slate-400">運用開始・試行</span></div>
+      <div class="text-center font-bold text-xs pb-2 border-b-2 border-slate-300 text-slate-600">Q4 (1月〜3月) <span class="block text-[10px] font-normal text-slate-400">評価・次年度計画</span></div>
+    </div>
+    <div class="space-y-4 pt-2 text-xs">
+      <div class="grid grid-cols-4 gap-4 items-center">
+        <div class="col-span-4 font-bold text-slate-800">① フリースペース モニター活用</div>
+        <div class="col-span-1 bg-emerald-100 border border-emerald-300 text-emerald-800 p-2 rounded-xl text-center">自己紹介＆マナースライド</div>
+        <div class="col-span-1 bg-indigo-100 border border-indigo-300 text-indigo-800 p-2 rounded-xl text-center font-medium">部署展示会・社割情報拡充</div>
+        <div class="col-span-2 bg-slate-50 border border-dashed border-slate-300 text-slate-500 p-2 rounded-xl text-center">支社ポータル連携・定例更新</div>
+      </div>
+      <div class="grid grid-cols-4 gap-4 items-center pt-2 border-t border-slate-100">
+        <div class="col-span-4 font-bold text-slate-800">③ テレキューブ・音環境</div>
+        <div class="col-span-2 bg-emerald-100 border border-emerald-300 text-emerald-800 p-2 rounded-xl flex items-center justify-between"><span>目隠しシート施工（★前倒し実施）</span><span class="bg-emerald-200 text-emerald-900 text-[10px] px-1.5 py-0.5 rounded font-bold">完了</span></div>
+        <div class="col-span-2 bg-indigo-50 border border-indigo-200 text-indigo-800 p-2 rounded-xl text-center">集中・会話スペースの使い分け（ゾーニング検討）</div>
+      </div>
+      <div class="grid grid-cols-4 gap-4 items-center pt-2 border-t border-slate-100">
+        <div class="col-span-4 font-bold text-slate-800">⑧ ロッカー・更衣室・制服（9/24中途入社）</div>
+        <div class="col-span-1 bg-slate-50 text-slate-400 p-2 rounded-xl text-center border border-slate-100">-</div>
+        <div class="col-span-1 bg-amber-100 border border-amber-300 text-amber-900 p-2 rounded-xl text-center font-bold">9/24受入・制服整理</div>
+        <div class="col-span-2 bg-slate-50 border border-slate-200 text-slate-600 p-2 rounded-xl text-center">女性ロッカー収納の継続最適化</div>
+      </div>
+      <div class="grid grid-cols-4 gap-4 items-center pt-2 border-t border-slate-100">
+        <div class="col-span-4 font-bold text-slate-800">⑥ 食事サービス / ⑦ グループアドレス</div>
+        <div class="col-span-1 bg-slate-50 text-slate-400 p-2 rounded-xl text-center border border-slate-100">制度要件確認</div>
+        <div class="col-span-1 bg-indigo-50 text-indigo-700 p-2 rounded-xl text-center border border-indigo-200">ベンダー相見積もり・他社調査</div>
+        <div class="col-span-1 bg-indigo-50 text-indigo-700 p-2 rounded-xl text-center border border-indigo-200">リスク評価＆結論出し</div>
+        <div class="col-span-1 bg-slate-50 border border-slate-200 text-slate-500 p-2 rounded-xl text-center">パイロット運用検討</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- テーブルビュー -->
+  <section id="view-table" data-view class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+    <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+      <div>
+        <h3 class="text-base font-bold text-slate-900">全タスク進捗テーブル</h3>
+        <p class="text-xs text-slate-500">施策横断の個別タスク一覧</p>
+      </div>
+      <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">全<span id="table-total-count"></span>タスク</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+          <tr>
+            <th class="py-3 px-4 w-12 text-center">完了</th>
+            <th class="py-3 px-4">タスク内容</th>
+            <th class="py-3 px-4">紐づく施策</th>
+            <th class="py-3 px-4">期日</th>
+            <th class="py-3 px-4">優先度</th>
+            <th class="py-3 px-4">区分</th>
+          </tr>
+        </thead>
+        <tbody id="table-body" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<!-- タスク追加モーダル -->
+<div id="modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <h3 class="text-base font-bold text-slate-900">新規タスクの追加</h3>
+      <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">対象施策</label>
+        <select id="input-initiative" class="w-full text-xs border border-slate-200 rounded-lg p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"></select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">タスク名・アクション内容</label>
+        <input id="input-title" type="text" placeholder="例: 更衣室の制服回収ボックスの設置手配" class="w-full text-xs border border-slate-200 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">担当者 / 係</label>
+          <input id="input-assignee" type="text" placeholder="例: 職場代表 A" class="w-full text-xs border border-slate-200 rounded-lg p-2.5">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">完了予定日</label>
+          <input id="input-due" type="date" value="2026-09-20" class="w-full text-xs border border-slate-200 rounded-lg p-2.5">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">優先度</label>
+        <select id="input-priority" class="w-full text-xs border border-slate-200 rounded-lg p-2.5 bg-slate-50">
+          <option value="高">高 (最優先・前倒し)</option>
+          <option value="中" selected>中 (通常進行)</option>
+          <option value="低">低 (中長期・調査)</option>
+        </select>
+      </div>
+      <p id="modal-error" class="text-xs text-rose-600 hidden">タスク名を入力してください。</p>
+    </div>
+    <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+      <button onclick="closeModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-200 rounded-lg">キャンセル</button>
+      <button onclick="saveNewTask()" class="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm shadow-indigo-200">保存して追加</button>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-white border-t border-slate-200 mt-auto py-6">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+    <div>&copy; 2026 従業員・職場代表団（東京支社）</div>
+    <div class="flex gap-4"><span>次回定例協議: 2026/09/15</span><span>更新: <span id="footer-updated">2026/08/28</span></span></div>
+  </div>
+</footer>
+
+<script>
+/* ========== データモデル ========== */
+const CATS = {
+  facility: '施設・設備', operation: '業務・ルール', culture: '交流・食事'
+};
+const COLOR_BADGE = {
+  blue:'bg-blue-50 text-blue-700 border-blue-200', amber:'bg-amber-50 text-amber-700 border-amber-200',
+  emerald:'bg-emerald-50 text-emerald-700 border-emerald-200', purple:'bg-purple-50 text-purple-700 border-purple-200',
+  rose:'bg-rose-50 text-rose-700 border-rose-200', slate:'bg-slate-100 text-slate-700 border-slate-200',
+  indigo:'bg-indigo-50 text-indigo-700 border-indigo-200', amberStrong:'bg-amber-50 text-amber-800 border-amber-300'
+};
+const PRIORITY_BADGE = {
+  '最高':'bg-rose-100 text-rose-700 font-bold', '高':'bg-rose-100 text-rose-700 font-bold',
+  '中':'bg-blue-100 text-blue-700', '低':'bg-slate-100 text-slate-600'
+};
+
+let initiatives = [
+  { id:'i1', code:'①', category:'facility', phase:'progress', color:'blue', badge:'情報共有・発信',
+    title:'フリースペース モニター情報発信の拡充',
+    desc:'社員自己紹介に加え、支社行事、部署活動・展示会情報、安全衛生マナー、テレキューブ利用ルール、社割制度を段階的に放映。',
+    footer:'目標: 東京支社内の情報共有ツール化', statusLabel:'段階的拡大中', highlight:false,
+    tasks:[
+      {id:'t1',title:'社員自己紹介スライドの定例更新運用',note:'担当: 広報・代表団',done:true,priority:'中',due:'随時更新'},
+      {id:'t2',title:'安全衛生マナー・利用ルールのスライド作成',note:'期日: 2026/06 完了',done:true,priority:'中',due:'2026/06完了'},
+      {id:'t3',title:'各部署の展示会・最新トピックス収集＆放映',note:'期日: 2026/09〜 順次拡大',done:false,priority:'中',due:'2026/09/30'}
+    ]},
+  { id:'i2', code:'②', category:'operation', phase:'midterm', color:'amber', badge:'業務・インフラ',
+    title:'電話・来客対応の改善（PBX見送りと運用見直し）',
+    desc:'音声ガイダンスは費用対効果で見送り。電話回線増設、iPhone活用、受電運用見直し、社員教育等で代替改善を検討。',
+    footer:'方針: ツール費用を抑え運用で改善', statusLabel:'代替策を検討中', highlight:false,
+    tasks:[
+      {id:'t4',title:'PBX音声ガイダンスのコスト試算・導入可否判定',note:'判定: 費用面で見送り確定',done:true,priority:'低',due:'判定済み'},
+      {id:'t5',title:'電話回線増設・iPhone受電の活用検証',note:'中長期検討アジェンダ',done:false,priority:'中',due:'2026/10/31'},
+      {id:'t6',title:'受電マナー・取次ルールの社員教育実施',note:'総務主体の継続対応、フォローアップ、期末最後にアンケート実施予定',done:false,priority:'中',due:'2026/11/30'}
+    ]},
+  { id:'i3', code:'③', category:'facility', phase:'progress', color:'emerald', badge:'音環境・集中ブース',
+    title:'テレキューブ改善＆オフィス音環境の適正化',
+    desc:'目隠しシート・専用ルーム目隠しを前倒し施工。Wi-Fi確認、利用マナー周知、集中と会話スペースのゾーニングを検討。',
+    footer:'優先度: 高（利用者要望多数）', statusLabel:'目隠し前倒し実施中', highlight:false,
+    tasks:[
+      {id:'t7',title:'テレキューブ＆専用ルームの目隠しシート施工',note:'★前倒しで対応完了',done:true,priority:'高',due:'前倒し完了'},
+      {id:'t8',title:'ブース内Wi-Fi電波・通信環境の速度測定',note:'電気通信の山内さんがやっていた',done:true,priority:'中',due:'確認済'},
+      {id:'t9',title:'テレキューブ利用マナーのブース内掲示',note:'総務予定主体の継続対応、フォローアップ',done:true,priority:'中',due:'完了'},
+      {id:'t10',title:'集中・会話スペースの使い分け（ゾーニング検討）',note:'中長期検討アジェンダ',done:false,priority:'中',due:'2026/12/20'}
+    ]},
+  { id:'i4', code:'④', category:'operation', phase:'progress', color:'purple', badge:'ルール・定着',
+    title:'「社内ルールブック」整備と4チャネル周知',
+    desc:'ルールブック整備＋月1回アナウンス＋部課長朝礼＋モニター放映を組み合わせ、職場マナーを継続周知。',
+    footer:'手法: 4ルートによる多面的浸透', statusLabel:'進行中', highlight:false,
+    tasks:[
+      {id:'t11',title:'社内ルールブック（ドラフト版）の改訂整備',note:'担当: 職場代表・総務',done:true,priority:'中',due:'完了'},
+      {id:'t12',title:'部課長朝礼でのアナウンス依頼スキーム構築',note:'定例アジェンダ化',done:true,priority:'中',due:'完了'},
+      {id:'t13',title:'月1回の全社アナウンス＆モニター連動開始',note:'毎月第1月曜に配信',done:false,priority:'中',due:'2026/10/05'}
+    ]},
+  { id:'i5', code:'⑤', category:'culture', phase:'progress', color:'rose', badge:'交流・エンゲージメント',
+    title:'部署間・他拠点来訪者との懇親・レクリエーション',
+    desc:'暑気払いとは別に部署間交流レクを企画。本社や他部署からの来訪社員とも交流機会を創出。',
+    footer:'目標: 縦割り解消・拠点間連携', statusLabel:'企画進行中', highlight:false,
+    tasks:[
+      {id:'t14',title:'夏期 部署間交流レクリエーションの実施',note:'実績: 暑気払い企画完了',done:true,priority:'中',due:'完了'},
+      {id:'t15',title:'本社・他支社からの来訪社員向けウェルカム交流枠',note:'期日: 2026/10〜 随時実施',done:false,priority:'中',due:'2026/10〜'}
+    ]},
+  { id:'i6', code:'⑥', category:'culture', phase:'hold', color:'slate', badge:'福利厚生・食事',
+    title:'冷凍食品等の食事サービス導入の再検討',
+    desc:'食事補助制度の条件、費用対効果、利用数、在庫管理・賞味期限リスクを考慮し情報収集。現時点では導入決定せず。',
+    footer:'ステータス: 現時点では保留・調査', statusLabel:'再検討・情報収集', highlight:false,
+    tasks:[
+      {id:'t16',title:'食事補助制度（税務上の要件等）の条件確認',note:'人事労務確認済',done:true,priority:'中',due:'完了'},
+      {id:'t17',title:'オフィス向け冷凍食品ベンダーの相見積もり・試食',note:'2025年度比較し一旦保留となるも一部社員からは継続要望あり',done:false,priority:'低',due:'2026/11/15'},
+      {id:'t18',title:'利用想定数・在庫管理運用のリスク評価まとめ',note:'2025年度概算した結果、費用対効果で見送り',done:false,priority:'低',due:'Q3中'}
+    ]},
+  { id:'i7', code:'⑦', category:'facility', phase:'midterm', color:'indigo', badge:'執務レイアウト',
+    title:'グループアドレス・備品共有化の検討',
+    desc:'書類保管・秘密保持・所在確認の課題を踏まえ、全面フリーアドレスではなく「グループアドレス」や備品共通化を検討。',
+    footer:'方針: 課題をクリアし段階的に移行', statusLabel:'中長期検討中', highlight:false,
+    tasks:[
+      {id:'t19',title:'他社アドレス事例・ペーパーレス状況の調査',note:'事例ヒアリング完了',done:true,priority:'中',due:'完了'},
+      {id:'t20',title:'機密書類・個人資料の集中保管ロッカー設計',note:'期日: 2026/11',done:false,priority:'中',due:'2026/11'},
+      {id:'t21',title:'グループアドレス制のパイロット運用案作成',note:'Q4検討予定',done:false,priority:'中',due:'Q4'}
+    ]},
+  { id:'i8', code:'⑧', category:'facility', phase:'progress', color:'amberStrong', badge:'直近最重要 (9/24)',
+    title:'9/24中途入社受入・ロッカー更衣室・制服整理',
+    desc:'9月24日入社に向け座席・ロッカー準備。女性ロッカーの更衣有無に応じた収納見直し、制服の保管・クリーニング整理。',
+    footer:'目標期日: 2026/09/24 必達', statusLabel:'準備推進中', highlight:true,
+    tasks:[
+      {id:'t22',title:'9/24中途社員の座席・PC・ロッカー割り当て',note:'総務・配属先確認済',done:true,priority:'高',due:'完了'},
+      {id:'t23',title:'女性ロッカー収納（更衣有無別）のヒアリング',note:'アンケート回収済',done:true,priority:'高',due:'完了'},
+      {id:'t24',title:'制服保有状況・クリーニング・返却ルール整理',note:'期日: 2026/09/20 (直前対応)',done:false,priority:'最高',due:'2026/09/20'}
+    ]},
+  { id:'i9', code:'⑨', category:'facility', phase:'midterm', color:'slate', badge:'将来キャパシティ',
+    title:'東京支社 人員増に伴うスペース全体設計',
+    desc:'今後の人員規模拡大を踏まえ、座席、ロッカー、更衣室、収納、共用スペースのキャパシティを経営・総務と継続検討。',
+    footer:'位置づけ: 支社中長期ロードマップ', statusLabel:'継続検討中', highlight:false,
+    tasks:[
+      {id:'t25',title:'2026-2027年度 支社採用計画・増員数の把握',note:'人事共有済',done:true,priority:'中',due:'完了'},
+      {id:'t26',title:'ロッカー・更衣室・収納の物理上限シミュレーション',note:'期日: 2026/11',done:false,priority:'中',due:'2026/11'},
+      {id:'t27',title:'共用スペースの多目的レイアウト変更提案',note:'Q4提案予定',done:false,priority:'低',due:'Q4'}
+    ]}
+];
+
+let currentView = 'card';
+let currentFilter = 'all';
+let currentSearch = '';
+let nextTaskNum = 28;
+const STORAGE_KEY = 'board-state-v1';
+
+/* ========== 永続化 ========== */
+async function loadState(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, true);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      if(parsed && Array.isArray(parsed.initiatives)){
+        initiatives = parsed.initiatives;
+        nextTaskNum = parsed.nextTaskNum || nextTaskNum;
+      }
+    }
+  }catch(e){ /* 初回や未保存時はデフォルトデータを使用 */ }
+  render();
+}
+async function saveState(){
+  const statusEl = document.getElementById('save-status');
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify({initiatives, nextTaskNum}), true);
+    if(statusEl) statusEl.textContent = '保存済み ・ ' + new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){
+    if(statusEl) statusEl.textContent = '保存に失敗しました（この端末のみ反映）';
+  }
+}
+
+/* ========== 集計 ========== */
+function pct(done,total){ return total===0 ? 0 : Math.round((done/total)*100); }
+function initiativeStats(ini){
+  const done = ini.tasks.filter(t=>t.done).length;
+  return {done, total: ini.tasks.length, pct: pct(done, ini.tasks.length)};
+}
+function allTasks(){ return initiatives.flatMap(ini => ini.tasks.map(t => ({...t, initiative: ini}))); }
+
+function statusPillClass(p){
+  if(p>=70) return 'bg-emerald-100 text-emerald-800';
+  if(p>=45) return 'bg-sky-100 text-sky-800';
+  return 'bg-amber-100 text-amber-800';
+}
+function barColorClass(p){
+  if(p>=70) return 'bg-emerald-500';
+  if(p>=45) return 'bg-indigo-600';
+  return 'bg-amber-500';
+}
+
+/* ========== レンダリング ========== */
+function render(){
+  renderStats();
+  renderFilterButtons();
+  renderCards();
+  renderTable();
+  document.getElementById('tab-card-count').textContent = initiatives.length;
+  document.getElementById('table-total-count').textContent = allTasks().length;
+  document.getElementById('stat-initiative-count').textContent = initiatives.length;
+  applyViewAndFilter();
+}
+
+function renderStats(){
+  const tasks = allTasks();
+  const done = tasks.filter(t=>t.done).length;
+  const total = tasks.length;
+  const avgPct = Math.round(initiatives.reduce((s,i)=>s+initiativeStats(i).pct,0)/initiatives.length);
+
+  document.getElementById('stat-total-progress-text').textContent = avgPct + '%';
+  document.getElementById('stat-total-progress-bar').style.width = avgPct + '%';
+  document.getElementById('stat-done-count').textContent = done;
+  document.getElementById('stat-total-count').textContent = total;
+  document.getElementById('stat-done-pct').textContent = pct(done,total) + '%';
+  document.getElementById('stat-done-bar').style.width = pct(done,total) + '%';
+
+  document.getElementById('stat-phase-progress').textContent = initiatives.filter(i=>i.phase==='progress').length;
+  document.getElementById('stat-phase-midterm').textContent = initiatives.filter(i=>i.phase==='midterm').length;
+  document.getElementById('stat-phase-hold').textContent = initiatives.filter(i=>i.phase==='hold').length;
+}
+
+function renderFilterButtons(){
+  const wrap = document.getElementById('filter-buttons');
+  const cats = [['all','すべて'], ...Object.entries(CATS)];
+  wrap.innerHTML = cats.map(([key,label])=>{
+    const active = key===currentFilter;
+    return `<button onclick="filterCategory('${key}')" class="category-btn px-2.5 py-1 rounded-lg text-xs whitespace-nowrap ${active?'bg-indigo-600 text-white font-semibold':'bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium'}">${label}</button>`;
+  }).join('');
+}
+
+function matchesSearch(text){
+  if(!currentSearch) return true;
+  return text.toLowerCase().includes(currentSearch.toLowerCase());
+}
+
+function renderCards(){
+  const container = document.getElementById('view-card');
+  container.innerHTML = initiatives.map(ini=>{
+    const s = initiativeStats(ini);
+    const visible = (currentFilter==='all' || ini.category===currentFilter) &&
+      (matchesSearch(ini.title) || matchesSearch(ini.desc) || ini.tasks.some(t=>matchesSearch(t.title)));
+    const highlightCls = ini.highlight ? 'border-amber-300 ring-1 ring-amber-100' : 'border-slate-200/90';
+    return `
+    <div class="initiative-card bg-white rounded-2xl border ${highlightCls} shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow fade-in" data-category="${ini.category}" style="${visible?'':'display:none'}">
+      <div class="p-5">
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${COLOR_BADGE[ini.color]}">${ini.code} ${ini.badge}</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${statusPillClass(s.pct)}">${ini.statusLabel} (${s.pct}%)</span>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 mb-1.5 leading-snug">${ini.title}</h3>
+        <p class="text-xs text-slate-500 mb-3 line-clamp-2">${ini.desc}</p>
+        <div class="mb-3">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-500 font-medium">進捗状況</span>
+            <span class="text-indigo-600 font-bold">${s.done} / ${s.total} 完了</span>
+          </div>
+          <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+            <div class="${barColorClass(s.pct)} h-full rounded-full transition-all duration-300" style="width:${s.pct}%"></div>
+          </div>
+        </div>
+        <div class="border-t border-slate-100 pt-3">
+          <div class="text-[11px] font-bold text-slate-700 mb-2 uppercase tracking-wide">実施アクション</div>
+          <ul class="space-y-2 text-xs">
+            ${ini.tasks.map(t=>`
+              <li class="flex items-start gap-2">
+                <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')" class="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-indigo-600 cursor-pointer">
+                <div class="flex-1">
+                  <span class="${t.done?'text-slate-400 line-through':'text-slate-700 font-medium'} task-title">${t.title}</span>
+                  <div class="text-[10px] ${t.done?'text-slate-400':'text-slate-500'}">${t.note}</div>
+                </div>
+              </li>`).join('')}
+          </ul>
+        </div>
+      </div>
+      <div class="bg-slate-50/80 px-5 py-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+        <span class="text-[11px]">${ini.footer}</span>
+        <span class="text-indigo-600 font-medium cursor-pointer" onclick="openModal('${ini.id}')">+ 追加</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTable(){
+  const tbody = document.getElementById('table-body');
+  const rows = allTasks().filter(t=>{
+    const catOk = currentFilter==='all' || t.initiative.category===currentFilter;
+    const searchOk = matchesSearch(t.title) || matchesSearch(t.initiative.title);
+    return catOk && searchOk;
+  });
+  tbody.innerHTML = rows.map(t=>`
+    <tr class="hover:bg-slate-50 fade-in">
+      <td class="py-3 px-4 text-center"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')" class="rounded border-slate-300 text-indigo-600 cursor-pointer"></td>
+      <td class="py-3 px-4 font-medium ${t.done?'text-slate-400 line-through':'text-slate-800'}">${t.title}</td>
+      <td class="py-3 px-4 text-slate-600">${t.initiative.code} ${t.initiative.badge}</td>
+      <td class="py-3 px-4 text-slate-500">${t.due||'-'}</td>
+      <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[10px] ${PRIORITY_BADGE[t.priority]||PRIORITY_BADGE['中']}">${t.priority}</span></td>
+      <td class="py-3 px-4 text-slate-500">${CATS[t.initiative.category]}</td>
+    </tr>`).join('') || `<tr><td colspan="6" class="py-8 text-center text-slate-400">該当するタスクがありません</td></tr>`;
+}
+
+/* ========== 操作 ========== */
+function switchView(v){
+  currentView = v;
+  applyViewAndFilter();
+}
+function applyViewAndFilter(){
+  ['card','timeline','table'].forEach(v=>{
+    document.getElementById('view-'+v).classList.toggle('active', v===currentView);
+    const tab = document.getElementById('tab-'+v);
+    if(v===currentView){
+      tab.classList.add('bg-white','text-indigo-600','shadow-sm','font-bold');
+      tab.classList.remove('text-slate-600','font-medium');
+    } else {
+      tab.classList.remove('bg-white','text-indigo-600','shadow-sm','font-bold');
+      tab.classList.add('text-slate-600','font-medium');
+    }
+  });
+}
+function filterCategory(cat){
+  currentFilter = cat;
+  render();
+}
+function onSearch(v){
+  currentSearch = v.trim();
+  renderCards();
+  renderTable();
+}
+function toggleTask(taskId){
+  for(const ini of initiatives){
+    const t = ini.tasks.find(t=>t.id===taskId);
+    if(t){ t.done = !t.done; break; }
+  }
+  render();
+  saveState();
+}
+
+/* ========== モーダル ========== */
+function openModal(preselectId){
+  const select = document.getElementById('input-initiative');
+  select.innerHTML = initiatives.map(ini=>`<option value="${ini.id}" ${ini.id===preselectId?'selected':''}>${ini.code} ${ini.title}</option>`).join('');
+  document.getElementById('input-title').value = '';
+  document.getElementById('input-assignee').value = '';
+  document.getElementById('input-priority').value = '中';
+  document.getElementById('modal-error').classList.add('hidden');
+  document.getElementById('modal').classList.remove('hidden');
+}
+function closeModal(){ document.getElementById('modal').classList.add('hidden'); }
+
+function saveNewTask(){
+  const iniId = document.getElementById('input-initiative').value;
+  const title = document.getElementById('input-title').value.trim();
+  const assignee = document.getElementById('input-assignee').value.trim();
+  const due = document.getElementById('input-due').value;
+  const priority = document.getElementById('input-priority').value;
+
+  if(!title){
+    document.getElementById('modal-error').classList.remove('hidden');
+    return;
+  }
+  const ini = initiatives.find(i=>i.id===iniId);
+  if(!ini) return;
+
+  const dueLabel = due ? due.replaceAll('-','/') : '未設定';
+  ini.tasks.push({
+    id:'t'+(nextTaskNum++),
+    title,
+    note: assignee ? `担当: ${assignee}` : `期日: ${dueLabel}`,
+    done:false,
+    priority,
+    due: dueLabel
+  });
+  closeModal();
+  render();
+  saveState();
+}
+
+/* ========== 初期化 ========== */
+loadState();
+</script>
+</body>
+</html>
