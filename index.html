@@ -363,19 +363,42 @@ let currentSearch = '';
 let nextTaskNum = 28;
 const STORAGE_KEY = 'board-state-v1';
 
-/* ========== 永続化 ========== */
-async function loadState(){
+/* ========== 永続化 ==========
+   複数タブ・複数端末からのアクセスで「古い画面のまま操作→丸ごと上書き保存」
+   により他の人の変更が消える事故を防ぐため、変更を保存する直前に必ず
+   最新の保存データを取得し、そこに今回の変更だけを反映してから保存する
+   （read-modify-write）方式にしている。 */
+async function fetchLatestState(){
   try{
     const res = await window.storage.get(STORAGE_KEY, true);
     if(res && res.value){
       const parsed = JSON.parse(res.value);
       if(parsed && Array.isArray(parsed.initiatives)){
-        initiatives = parsed.initiatives;
-        nextTaskNum = parsed.nextTaskNum || nextTaskNum;
+        return parsed;
       }
     }
-  }catch(e){ /* 初回や未保存時はデフォルトデータを使用 */ }
+  }catch(e){ /* 未保存 or 取得失敗時は null を返す */ }
+  return null;
+}
+async function loadState(){
+  const latest = await fetchLatestState();
+  if(latest){
+    initiatives = latest.initiatives;
+    nextTaskNum = latest.nextTaskNum || nextTaskNum;
+  }
   render();
+  setInterval(refreshFromStorage, 60000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) refreshFromStorage(); });
+}
+// タブを長時間開きっぱなしにしていても表示を最新に保つ（自分が今何か編集中でなければ反映）
+async function refreshFromStorage(){
+  if(document.getElementById('modal') && !document.getElementById('modal').classList.contains('hidden')) return;
+  const latest = await fetchLatestState();
+  if(latest){
+    initiatives = latest.initiatives;
+    nextTaskNum = latest.nextTaskNum || nextTaskNum;
+    render();
+  }
 }
 async function saveState(){
   const statusEl = document.getElementById('save-status');
@@ -542,13 +565,28 @@ function onSearch(v){
   renderCards();
   renderTable();
 }
-function toggleTask(taskId){
+async function toggleTask(taskId){
+  // まず自分の画面上で即座に反映（体感速度優先）
+  let newDone = null;
   for(const ini of initiatives){
     const t = ini.tasks.find(t=>t.id===taskId);
-    if(t){ t.done = !t.done; break; }
+    if(t){ t.done = !t.done; newDone = t.done; break; }
   }
   render();
-  saveState();
+  if(newDone===null) return;
+
+  // 保存直前に最新の保存データを取得し、そこに今回のチェック結果だけを反映して保存する。
+  // こうすることで、他のタブ／他の人が別途行った変更を古いデータで上書きしてしまう事故を防ぐ。
+  const latest = await fetchLatestState();
+  const base = latest ? latest.initiatives : initiatives;
+  for(const ini of base){
+    const t = ini.tasks.find(t=>t.id===taskId);
+    if(t){ t.done = newDone; break; }
+  }
+  initiatives = base;
+  if(latest) nextTaskNum = latest.nextTaskNum || nextTaskNum;
+  render();
+  await saveState();
 }
 
 /* ========== モーダル ========== */
@@ -563,7 +601,7 @@ function openModal(preselectId){
 }
 function closeModal(){ document.getElementById('modal').classList.add('hidden'); }
 
-function saveNewTask(){
+async function saveNewTask(){
   const iniId = document.getElementById('input-initiative').value;
   const title = document.getElementById('input-title').value.trim();
   const assignee = document.getElementById('input-assignee').value.trim();
@@ -574,21 +612,30 @@ function saveNewTask(){
     document.getElementById('modal-error').classList.remove('hidden');
     return;
   }
-  const ini = initiatives.find(i=>i.id===iniId);
-  if(!ini) return;
+  closeModal();
+
+  // 保存直前に最新の保存データを取得し、そこに新規タスクを追加してから保存する
+  // （他のタブ／他の人が先に加えた変更を消さないようにするため）。
+  const latest = await fetchLatestState();
+  const base = latest ? latest.initiatives : initiatives;
+  const baseNextNum = latest ? (latest.nextTaskNum || nextTaskNum) : nextTaskNum;
+  const ini = base.find(i=>i.id===iniId);
+  if(!ini){ initiatives = base; render(); return; }
 
   const dueLabel = due ? due.replaceAll('-','/') : '未設定';
   ini.tasks.push({
-    id:'t'+(nextTaskNum++),
+    id:'t'+baseNextNum,
     title,
     note: assignee ? `担当: ${assignee}` : `期日: ${dueLabel}`,
     done:false,
     priority,
     due: dueLabel
   });
-  closeModal();
+
+  initiatives = base;
+  nextTaskNum = baseNextNum + 1;
   render();
-  saveState();
+  await saveState();
 }
 
 /* ========== 初期化 ========== */
